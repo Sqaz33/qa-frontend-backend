@@ -1,0 +1,21 @@
+# Локальные зависимости и временные файлы
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+work/
+tmp/
+*.log
+
+# Локальная конфигурация и секреты
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+Desktop.ini
