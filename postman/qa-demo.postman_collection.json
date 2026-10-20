@@ -1,0 +1,80 @@
+{
+  "info": {
+    "name": "QA demo-1.0 — ручные проверки API",
+    "description": "Запросы к локальному учебному стенду. Ожидания — в описании каждого запроса. Отправлять по одному и проверять результат вручную. В lightweight API Client первые запросы создаются вручную; для организации в коллекции нужен workspace.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8765",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Доступность стенда (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health",
+        "description": "Ожидается 200, status=ok, build=demo-1.0."
+      }
+    },
+    {
+      "name": "02 — Список заявок (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/applications",
+        "description": "Ожидается 200 и массив items. Сохранить список до негативной проверки, затем запросить снова и убедиться, что заявка не добавилась. Другие отправки в это время не выполнять."
+      }
+    },
+    {
+      "name": "03 — Создать заявку на 50000 (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Тестовый пользователь\",\n  \"amount\": 50000,\n  \"consent\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/applications",
+        "description": "Ожидается 201, id, amount=50000, status=new. Каждый успешный POST создаёт новую заявку."
+      }
+    },
+    {
+      "name": "04 — Сумма 999 (422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Тестовый пользователь\",\n  \"amount\": 999,\n  \"consent\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/applications",
+        "description": "Ожидается 422, error=validation_error, ошибка fields.amount. Новая заявка не создаётся — отдельно сверить список до и после. Ответ ученика пока не получен."
+      }
+    }
+  ]
+}
