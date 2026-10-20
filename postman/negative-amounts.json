@@ -1,0 +1,34 @@
+[
+  {
+    "caseName": "Ниже минимума",
+    "amount": 999
+  },
+  {
+    "caseName": "Выше максимума",
+    "amount": 100001
+  },
+  {
+    "caseName": "Отрицательная сумма",
+    "amount": -1
+  },
+  {
+    "caseName": "Ноль",
+    "amount": 0
+  },
+  {
+    "caseName": "Дробное число",
+    "amount": 1000.5
+  },
+  {
+    "caseName": "Строка вместо числа",
+    "amount": "1000"
+  },
+  {
+    "caseName": "null вместо суммы",
+    "amount": null
+  },
+  {
+    "caseName": "boolean вместо числа",
+    "amount": true
+  }
+]

@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "QA demo-1.0 — ручные проверки API",
-    "description": "Запросы к локальному учебному стенду. Ожидания — в описании каждого запроса. Отправлять по одному и проверять результат вручную. В lightweight API Client первые запросы создаются вручную; для организации в коллекции нужен workspace.",
+    "name": "QA demo-1.0 — практика Postman",
+    "description": "Ручные запросы сохранены. Для углублённого блока запускать выбранную папку: 01 — цепочка создания/чтения; 02 — негативные данные с JSON-файлом итераций. Цель — локальный demo-1.0. Каждый успешный POST создаёт заявку. Динамические значения сохраняются на время работы в переменных коллекции; не задавать одноимённые environment/data-переменные.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -75,6 +75,265 @@
         "url": "{{baseUrl}}/api/applications",
         "description": "Ожидается 422, error=validation_error, ошибка fields.amount. Новая заявка не создаётся — отдельно сверить список до и после."
       }
+    },
+    {
+      "name": "01 — Цепочка POST → GET",
+      "description": "Запускать по порядку. Создаётся одна учебная заявка на 1000, её id автоматически используется в GET. Независимые ассерты проверяют контракт, затем согласованность чтения.",
+      "item": [
+        {
+          "name": "01.1 — Стенд доступен",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Сервис работает\", () => pm.expect(data.status).to.eql(\"ok\"));",
+                  "pm.test(\"Ожидаемая сборка\", () => pm.expect(data.build).to.eql(\"demo-1.0\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 — Создать заявку на 1000",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/applications",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"test\",\n  \"amount\": 1000,\n  \"consent\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.unset(\"createdApplicationId\");",
+                  "pm.collectionVariables.unset(\"createdApplication\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Создание: HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Выдан положительный целочисленный id\", () => {",
+                  "  pm.expect(Number.isInteger(data.id) && data.id > 0).to.eql(true);",
+                  "});",
+                  "pm.test(\"Данные соответствуют требованиям запроса\", () => {",
+                  "  pm.expect(data.name).to.eql(\"test\");",
+                  "  pm.expect(data.amount).to.eql(1000);",
+                  "  pm.expect(data.consent).to.eql(true);",
+                  "  pm.expect(data.status).to.eql(\"new\");",
+                  "});",
+                  "pm.test(\"created_at — распознаваемая дата\", () => {",
+                  "  pm.expect(data.created_at).to.be.a(\"string\");",
+                  "  pm.expect(Number.isNaN(Date.parse(data.created_at))).to.eql(false);",
+                  "});",
+                  "pm.test(\"Location указывает на созданную заявку\", () => {",
+                  "  pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/applications/\" + data.id);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isInteger(data.id) && data.id > 0) {",
+                  "  pm.collectionVariables.set(\"createdApplicationId\", String(data.id));",
+                  "  pm.collectionVariables.set(\"createdApplication\", JSON.stringify(data));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.3 — Прочитать созданную заявку",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/applications/{{createdApplicationId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const id = pm.collectionVariables.get(\"createdApplicationId\");",
+                  "if (!id || !/^\\d+$/.test(id)) throw new Error(\"Сначала выполните запрос 01.2: нужен id созданной заявки\");",
+                  "pm.variables.set(\"createdApplicationId\", id);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Чтение: HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const actual = pm.response.json();",
+                  "const saved = pm.collectionVariables.get(\"createdApplication\");",
+                  "if (!saved) throw new Error(\"Не сохранён ответ создания: сначала выполните 01.2\");",
+                  "const expected = JSON.parse(saved);",
+                  "pm.test(\"Поля при чтении совпадают с созданными\", () => {",
+                  "  [\"id\",\"name\",\"amount\",\"consent\",\"status\",\"created_at\"].forEach(key => {",
+                  "    pm.expect(actual[key], key).to.eql(expected[key]);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 — Негативные данные",
+      "description": "Без файла данных проверяется 999. Для набора использовать negative-amounts.json: 8 итераций. В каждой итерации GET до → POST с недопустимой суммой → GET после. Во время прогона другие заявки не создавать.",
+      "item": [
+        {
+          "name": "02.1 — Список до отказа",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/applications",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.unset(\"beforeNegative\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Список: HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"items — массив\", () => pm.expect(data.items).to.be.an(\"array\"));",
+                  "if (pm.response.code === 200 && Array.isArray(data.items)) {",
+                  "  const rows = data.items.slice().sort((a,b) => a.id-b.id);",
+                  "  pm.collectionVariables.set(\"beforeNegative\", JSON.stringify(rows));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.2 — Отправить недопустимую сумму",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/applications",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{{negativeBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const row = pm.iterationData.toObject();",
+                  "const amount = Object.prototype.hasOwnProperty.call(row, \"amount\") ? row.amount : 999;",
+                  "pm.variables.set(\"negativeBody\", JSON.stringify({name:\"test\", amount, consent:true}));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Недопустимая сумма: HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Тип ошибки — validation_error\", () => pm.expect(data.error).to.eql(\"validation_error\"));",
+                  "pm.test(\"Ошибка указывает на amount\", () => {",
+                  "  pm.expect(data.fields).to.be.an(\"object\");",
+                  "  pm.expect(data.fields.amount).to.be.a(\"string\").and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.3 — Список после отказа",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/applications",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Список после: HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"items после — массив\", () => pm.expect(data.items).to.be.an(\"array\"));",
+                  "const saved = pm.collectionVariables.get(\"beforeNegative\");",
+                  "if (!saved) throw new Error(\"Сначала выполните 02.1: нужен исходный список\");",
+                  "const before = JSON.parse(saved);",
+                  "pm.test(\"После отказа список и данные не изменились\", () => {",
+                  "  pm.expect(data.items).to.be.an(\"array\");",
+                  "  const after = data.items.slice().sort((a,b) => a.id-b.id);",
+                  "  pm.expect(after).to.deep.eql(before);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "auth": {
+    "type": "noauth"
+  }
 }

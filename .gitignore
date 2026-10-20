@@ -22,3 +22,6 @@ Desktop.ini
 
 # Данные демонстрационного API
 demo/runtime/
+
+# Отчёты и локальное состояние Postman
+postman/runtime/
