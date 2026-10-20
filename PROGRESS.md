@@ -84,3 +84,12 @@
 - По официальной документации v12 подготовлена инструкция lightweight API Client без аккаунта. Нельзя автоматизировать вход в аккаунт.
 - Добавлены notes/06-postman-first-request.md и postman/qa-demo.postman_collection.json. Заготовка коллекции не является результатом выполнения.
 - Следующий шаг ученика: POST http://127.0.0.1:8765/api/applications с name=Тестовый пользователь, amount=999, consent=true, Body raw JSON и Content-Type application/json. Ожидается 422 с fields.amount. Для проверки отсутствия создания отдельно сверить список GET до и после.
+
+## 2026-10-21 — подтверждён прямой POST из Postman
+- Получен скриншот пользователя: POST /api/applications, name=test, amount=999, consent=true; выбран raw JSON.
+- Видны 422, error=validation_error и fields.amount с ожидаемым сообщением. Негативная проверка отклонения суммы пройдена.
+- Доказательство: evidence/screenshots/2026-10-21-postman-amount-999.png; разбор: evidence/day-02-postman.md.
+- На скриншоте открыт workspace Postman. Как пользователь вошёл и к какой локальной папке workspace привязан, неизвестно; не предполагать привязку к этому репозиторию.
+- Подсказка Postman AI исправить amount не меняет ожидаемый результат негативной проверки.
+- Отсутствие созданной заявки по одному ответу 422 ещё не установлено.
+- Следующий шаг: новый GET /api/applications → сохранить исходный список → повторить POST amount=999 → повторить GET → сравнить id и данные. Ожидается 200 на GET, 422 на POST, отсутствие изменений в списке.

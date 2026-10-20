@@ -73,7 +73,7 @@
           }
         },
         "url": "{{baseUrl}}/api/applications",
-        "description": "Ожидается 422, error=validation_error, ошибка fields.amount. Новая заявка не создаётся — отдельно сверить список до и после. Ответ ученика пока не получен."
+        "description": "Ожидается 422, error=validation_error, ошибка fields.amount. Новая заявка не создаётся — отдельно сверить список до и после."
       }
     }
   ]
