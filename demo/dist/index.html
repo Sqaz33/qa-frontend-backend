@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QA · Учебная заявка</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="/">QA<span> / </span>ПРАКТИКА</a><span class="badge">Локальный стенд</span></header>
+  <main>
+    <div class="intro"><p class="eyebrow">01 / WEB И API</p><h1>Учебная заявка</h1>
+    <p class="lead">Отправьте форму и проследите путь данных в Network.</p></div>
+    <div class="layout">
+      <section class="card"><h2>Новая заявка</h2><p class="muted">Используйте вымышленные данные.</p>
+        <form id="application-form">
+          <label for="name">Имя заявителя</label>
+          <input id="name" name="name" autocomplete="off" required minlength="2" maxlength="50" placeholder="Тестовый пользователь">
+          <label for="amount">Сумма, ₽</label>
+          <input id="amount" name="amount" type="number" required min="1000" max="100000" step="1" value="50000">
+          <p class="hint">От 1 000 до 100 000 ₽, целое число</p>
+          <label class="consent"><input id="consent" name="consent" type="checkbox" required><span>Согласен на обработку учебных данных</span></label>
+          <button type="submit">Создать заявку <span aria-hidden="true">→</span></button>
+        </form>
+        <div id="result" role="status" aria-live="polite" hidden></div>
+      </section>
+      <aside><p class="eyebrow">ЧТО ПРОВЕРЯЕМ</p><h2>От клика<br>до ответа</h2>
+        <ol><li><strong>Действие</strong><span>Заполнить и отправить форму</span></li><li><strong>Запрос</strong><span>Проверить адрес, метод и данные</span></li><li><strong>Ответ</strong><span>Сравнить результат с ожиданием</span></li></ol>
+        <p class="aside-note">Откройте DevTools до отправки формы, чтобы запрос попал в журнал.</p>
+      </aside>
+    </div>
+  </main>
+  <footer><span>Учебный пример · demo-1.0</span><span>DevTools → Network → Fetch/XHR</span></footer>
+</body></html>
