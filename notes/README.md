@@ -20,7 +20,8 @@
 | [Postman: авторизация](14-postman-authorization.md) | 3 минуты | Объяснение; демо без auth |
 | [Стенд и ручная практика](15-stands-and-hands-on.md) | 3 минуты | Текущий шаг: собрать всё в Postman самому |
 | [Postman: callback и FAILED](16-postman-callback-and-failed.md) | 3 минуты | FAILED подтверждён сообщением ученика |
-| [Postman: передать id в GET](17-postman-id-chain.md) | 4 минуты | Следующий ручной шаг |
+| [Postman: передать id в GET](17-postman-id-chain.md) | 4 минуты | Выполнено по сообщению ученика |
+| [Postman: неверный тип JSON](18-postman-negative-types.md) | 3 минуты | Текущий запрос: строка вместо числа |
 
 ## Как повторять
 1. Закрой заметку и объясни тему своими словами.
