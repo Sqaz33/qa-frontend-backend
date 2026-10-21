@@ -6,14 +6,14 @@
 
 | Раздел Scripts | Когда | Применение |
 |---|---|---|
-| Pre-request | Перед отправкой | Подготовить данные и временные значения |
-| Post-response | После ответа | Проверить результат, сохранить id |
+| Before request / Pre-request | Перед отправкой | Подготовить данные и временные значения |
+| After response / Post-response | После ответа | Проверить результат, сохранить id |
 
-В старых материалах Post-response часто называется Tests.
+В интерфейсе пользователя разделы называются Before request и After response. В документации встречаются Pre-request и Post-response; в старых материалах послеответный раздел также называется Tests.
 
 ## Первая проверка
 
-В Scripts → Post-response у запроса создания:
+В Scripts → After response у запроса создания:
 ```javascript
 pm.test("Заявка создана: 201", () => {
   pm.response.to.have.status(201);
@@ -72,7 +72,7 @@ POST {{baseUrl}}/api/applications, Body raw JSON:
 ```
 Content-Type application/json; Authorization No Auth.
 
-В Scripts → Post-response:
+В Scripts → After response:
 ```javascript
 pm.test("Заявка создана: 201", () => {
   pm.response.to.have.status(201);
@@ -92,3 +92,6 @@ pm.test("Выдан положительный целочисленный id", (
 Ожидается HTTP 201 и три passed в Test Results. Выполнение пользователем ещё не подтверждено.
 pm.response.json() разбирает тело ответа в JavaScript-значение. const data существует внутри скрипта; для передачи id следующему запросу отдельно создадим переменную коллекции.
 Перед отправкой убедиться, что выбрано QA Local и запрос сохранён в собственной коллекции.
+
+## Результат и следующий разбор
+На скриншоте пользователя показаны 201 и 3/3 PASSED. В третьей проверке нужно восстановить функцию вторым аргументом pm.test. См. [разбор callback и FAILED](16-postman-callback-and-failed.md).
