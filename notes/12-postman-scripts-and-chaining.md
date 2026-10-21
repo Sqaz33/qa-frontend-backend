@@ -56,9 +56,39 @@ id, name, amount, consent, status, created_at.
 Создание отдельно проверяется на name=test, amount=1000, consent=true и status=new. Поэтому ошибку, одинаковую в POST и GET, мы не оправдываем одним совпадением ответов.
 
 ## Что делать руками
-Открыть папку 01. Сначала изучить и отправить 01.1, затем 01.2, затем 01.3.
+Основной путь — собрать запросы и скрипты в собственной коллекции. Папка 01 готового файла служит образцом для сравнения.
 После каждого ответа открыть результаты тестов и посмотреть, какая именно проверка прошла.
 Проверки помощника уже прошли, но результат ученика этим не подменяется.
 
 [Объект pm и переменные](https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-reference/pm-variables).
 [Пример сохранения ответа для следующего вызова](https://support.postman.com/hc/en-us/articles/115003340869-How-to-save-a-response-as-a-variable-and-reuse-it-for-another-API-call).
+
+## Ручной шаг: первый POST со скриптом
+
+В собственной коллекции создать и сохранить «02 — Создать заявку».
+POST {{baseUrl}}/api/applications, Body raw JSON:
+```json
+{"name":"test","amount":1000,"consent":true}
+```
+Content-Type application/json; Authorization No Auth.
+
+В Scripts → Post-response:
+```javascript
+pm.test("Заявка создана: 201", () => {
+  pm.response.to.have.status(201);
+});
+
+const data = pm.response.json();
+
+pm.test("Сумма — число 1000", () => {
+  pm.expect(data.amount).to.eql(1000);
+});
+
+pm.test("Выдан положительный целочисленный id", () => {
+  pm.expect(Number.isInteger(data.id) && data.id > 0).to.eql(true);
+});
+```
+
+Ожидается HTTP 201 и три passed в Test Results. Выполнение пользователем ещё не подтверждено.
+pm.response.json() разбирает тело ответа в JavaScript-значение. const data существует внутри скрипта; для передачи id следующему запросу отдельно создадим переменную коллекции.
+Перед отправкой убедиться, что выбрано QA Local и запрос сохранён в собственной коллекции.
