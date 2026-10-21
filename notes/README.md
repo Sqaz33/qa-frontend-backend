@@ -23,8 +23,9 @@
 | [Postman: передать id в GET](17-postman-id-chain.md) | 4 минуты | Выполнено по сообщению ученика |
 | [Postman: неверный тип JSON](18-postman-negative-types.md) | 3 минуты | Все проверки прошли по сообщению ученика |
 | [Postman: 400, 415 и 422](19-postman-400-415-422.md) | 3 минуты | Сломанный JSON завершён по сообщению; 415 не подтверждён |
-| [Postman: что проверять, Before request и Runner](20-postman-what-to-check-and-runner.md) | 5 минут | Объяснение; самостоятельный Runner впереди |
-| [Runner: один запрос, восемь наборов данных](21-postman-manual-data-run.md) | 4 минуты | Следующий ручной прогон |
+| [Postman: что проверять, Before request и Runner](20-postman-what-to-check-and-runner.md) | 5 минут | Объяснение; прогоны выполнены по сообщениям |
+| [Runner: один запрос, восемь наборов данных](21-postman-manual-data-run.md) | 4 минуты | Выполнено по сообщению ученика |
+| [Console: расследование ошибок](22-postman-console-debug.md) | 3 минуты | Текущий блок |
 
 ## Как повторять
 1. Закрой заметку и объясни тему своими словами.
