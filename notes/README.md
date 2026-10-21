@@ -22,7 +22,8 @@
 | [Postman: callback и FAILED](16-postman-callback-and-failed.md) | 3 минуты | FAILED подтверждён сообщением ученика |
 | [Postman: передать id в GET](17-postman-id-chain.md) | 4 минуты | Выполнено по сообщению ученика |
 | [Postman: неверный тип JSON](18-postman-negative-types.md) | 3 минуты | Все проверки прошли по сообщению ученика |
-| [Postman: 400, 415 и 422](19-postman-400-415-422.md) | 3 минуты | Следующий шаг: сломанный JSON |
+| [Postman: 400, 415 и 422](19-postman-400-415-422.md) | 3 минуты | Сломанный JSON завершён по сообщению; 415 не подтверждён |
+| [Postman: что проверять, Before request и Runner](20-postman-what-to-check-and-runner.md) | 5 минут | Объяснение; самостоятельный Runner впереди |
 
 ## Как повторять
 1. Закрой заметку и объясни тему своими словами.
