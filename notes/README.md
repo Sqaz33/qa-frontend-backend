@@ -19,7 +19,8 @@
 | [Postman: Runner и данные](13-postman-runner-and-data.md) | 4 минуты | Заготовка проверена помощником |
 | [Postman: авторизация](14-postman-authorization.md) | 3 минуты | Объяснение; демо без auth |
 | [Стенд и ручная практика](15-stands-and-hands-on.md) | 3 минуты | Текущий шаг: собрать всё в Postman самому |
-| [Postman: callback и FAILED](16-postman-callback-and-failed.md) | 3 минуты | Исправление структуры и демонстрация ошибки ожидания |
+| [Postman: callback и FAILED](16-postman-callback-and-failed.md) | 3 минуты | FAILED подтверждён сообщением ученика |
+| [Postman: передать id в GET](17-postman-id-chain.md) | 4 минуты | Следующий ручной шаг |
 
 ## Как повторять
 1. Закрой заметку и объясни тему своими словами.
