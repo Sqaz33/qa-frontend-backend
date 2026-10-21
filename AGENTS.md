@@ -56,3 +56,6 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
 
 ## Названия разделов Postman в интерфейсе пользователя
 На присланных скриншотах Scripts содержит Before request и After response. В пошаговых инструкциях использовать эти названия; Pre-request/Post-response — соответствующие названия в документации. Не отправлять ученика искать отдельный Post-response, когда After response уже открыт.
+
+## Защищённый пример подготовлен — 2026-10-21
+auth-demo/README.md — контракт auth-demo-1.0 на 8766; код auth-demo/server.py, тесты auth-demo/test_auth.py. Основной demo-1.0 на 8765 открыт и независим. Временные PID/логи auth-demo/runtime/ игнорируются. Ручной маршрут notes/23-postman-auth-hands-on.md. Помощник проверил 12 тестов и 26 assertions CLI; это не результаты ученика. Для ручных шагов authBaseUrl=http://127.0.0.1:8766 в QA Local, временный authAccessToken — в коллекции. Реальные секреты и полученные токены не коммитить. Истечение через 900 секунд/перезапуск требует нового входа, refresh не реализован.

@@ -1,0 +1,417 @@
+{
+  "info": {
+    "name": "QA Auth — reference verification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Reference checks for auth-demo-1.0. Synthetic accounts only. Tokens are runtime-local and are not saved to files."
+  },
+  "item": [
+    {
+      "name": "01 Health",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/health",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.unset(\"qaUserToken\");",
+              "pm.variables.unset(\"qaAdminToken\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Auth build\", () => pm.expect(pm.response.json().build).to.eql(\"auth-demo-1.0\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Profile without token",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/me",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"Challenge and reason\", () => { pm.expect(pm.response.json().error).to.eql(\"unauthorized\"); pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.eql('Bearer realm=\"qa-auth\"'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Wrong password",
+      "request": {
+        "method": "POST",
+        "url": "{{authBaseUrl}}/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"qa_user\",\"password\":\"wrong\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"No token on bad login\", () => { const d = pm.response.json(); pm.expect(d.error).to.eql(\"invalid_credentials\"); pm.expect(d).not.to.have.property(\"access_token\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 User login",
+      "request": {
+        "method": "POST",
+        "url": "{{authBaseUrl}}/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"qa_user\",\"password\":\"Study123!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.unset(\"qaUserToken\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Bearer token and TTL\", () => { pm.expect(data.access_token).to.be.a(\"string\").and.not.empty; pm.expect(data.token_type).to.eql(\"Bearer\"); pm.expect(data.expires_in).to.eql(900); });",
+              "pm.test(\"Server identity\", () => { pm.expect(data.user.username).to.eql(\"qa_user\"); pm.expect(data.user.role).to.eql(\"user\"); pm.expect(data.user).not.to.have.property(\"password\"); });",
+              "if (pm.response.code === 200 && typeof data.access_token === \"string\" && data.access_token.length > 0) pm.variables.set(\"qaUserToken\", data.access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 User profile",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaUserToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Public user fields only\", () => pm.expect(pm.response.json()).to.eql({id:1,username:\"qa_user\",role:\"user\"}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Unknown token",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "not-a-valid-token",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"Invalid token\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_token\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 User forbidden report",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/admin/report",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaUserToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));",
+              "pm.test(\"Forbidden\", () => pm.expect(pm.response.json().error).to.eql(\"forbidden\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Admin login",
+      "request": {
+        "method": "POST",
+        "url": "{{authBaseUrl}}/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"qa_admin\",\"password\":\"Study123!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.unset(\"qaAdminToken\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Bearer token and TTL\", () => { pm.expect(data.access_token).to.be.a(\"string\").and.not.empty; pm.expect(data.token_type).to.eql(\"Bearer\"); pm.expect(data.expires_in).to.eql(900); });",
+              "pm.test(\"Server identity\", () => { pm.expect(data.user.username).to.eql(\"qa_admin\"); pm.expect(data.user.role).to.eql(\"admin\"); pm.expect(data.user).not.to.have.property(\"password\"); });",
+              "if (pm.response.code === 200 && typeof data.access_token === \"string\" && data.access_token.length > 0) pm.variables.set(\"qaAdminToken\", data.access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Admin report",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/admin/report",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaAdminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Report\", () => pm.expect(pm.response.json()).to.eql({report:\"Учебный отчёт\",total:2}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Logout user",
+      "request": {
+        "method": "POST",
+        "url": "{{authBaseUrl}}/auth/logout",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaUserToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+              "pm.test(\"Empty body\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Revoked user token",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaUserToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"Revoked token rejected\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_token\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Admin unaffected",
+      "request": {
+        "method": "GET",
+        "url": "{{authBaseUrl}}/api/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{qaAdminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Admin token remains valid\", () => pm.expect(pm.response.json().username).to.eql(\"qa_admin\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "authBaseUrl",
+      "value": "http://127.0.0.1:8766"
+    }
+  ]
+}
+

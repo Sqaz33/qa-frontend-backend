@@ -25,3 +25,6 @@ demo/runtime/
 
 # Отчёты и локальное состояние Postman
 postman/runtime/
+
+# Локальное состояние учебной авторизации
+auth-demo/runtime/
