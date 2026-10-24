@@ -28,3 +28,7 @@ postman/runtime/
 
 # Локальное состояние учебной авторизации
 auth-demo/runtime/
+
+# Данные итоговой практики и локальные преподавательские материалы
+practice/lab/runtime/
+practice/instructor/
