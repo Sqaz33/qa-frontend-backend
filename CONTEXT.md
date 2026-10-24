@@ -83,3 +83,6 @@ QA engineer/тестировщик ПО. Компания: Аксиоматик�
 ## Публичный репозиторий — 2026-10-24
 Пользователь явно попросил через gh создать public-репозиторий на своём GitHub, если нашей копии ещё нет. Аккаунт Sqaz33 подтверждён, одноимённого репозитория не было; interview_tracker — другой проект.
 Создан https://github.com/Sqaz33/qa-interview-axiomatika, visibility=PUBLIC, main опубликована, origin настроен. Локальные runtime/БД и полученные токены не включены. Файл QA Local содержит только адрес локального стенда. Учебные аккаунты в auth-demo — намеренно синтетические.
+
+## Переименование GitHub — 2026-10-24
+По просьбе пользователя репозиторий переименован в qa-frontend-backend. Текущий адрес: https://github.com/Sqaz33/qa-frontend-backend, доступ PUBLIC. origin обновлён. Локальная папка D:\Projects\qa-interview-axiomatika сохранена.
